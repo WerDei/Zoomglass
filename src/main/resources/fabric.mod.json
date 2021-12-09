@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "zoomglass",
+  "version": "${version}",
+  "name": "Zoomglass",
+  "description": "Use your spyglass quickly with a press of a button",
+  "authors": [
+    "WerDei"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/zoomglass/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.werdei.zoomglass.client.ZoomglassClient"
+    ]
+  },
+  "mixins": [
+    "zoomglass.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.12.8",
+    "fabric": "*",
+    "minecraft": "1.18"
+  }
+}
