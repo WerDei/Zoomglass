@@ -20,7 +20,7 @@
     "zoomglass.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.12.8",
+    "fabricloader": ">=0.12.5",
     "fabric": "*",
     "minecraft": "1.18"
   }

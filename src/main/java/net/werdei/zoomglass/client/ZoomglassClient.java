@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.Items;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import org.lwjgl.glfw.GLFW;
 
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
@@ -20,13 +20,13 @@ public class ZoomglassClient implements ClientModInitializer
     public void onInitializeClient()
     {
         zoomglassKeybinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.examplemod.spook",
+                "key.zoomglass.spyglass",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_C,
-                "Zoomglass"
+                "key.categories.inventory"
         ));
 
-        spyglassSlotSwapper = new SlotSwapper(Items.SPYGLASS, new LiteralText("You don't have a spyglass"));
+        spyglassSlotSwapper = new SlotSwapper(Items.SPYGLASS, new TranslatableText("zoomglass.nospyglass"));
 
         ClientTickEvents.END_CLIENT_TICK.register(client ->
                 spyglassSlotSwapper.tick(zoomglassKeybinding.isPressed(), client));

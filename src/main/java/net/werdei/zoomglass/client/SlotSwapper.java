@@ -58,7 +58,7 @@ public class SlotSwapper
         swappedItemSlotId = inventory.getSlotWithStack(new ItemStack(item));
         if (swappedItemSlotId == -1)
         {
-            client.player.sendMessage(noItemMessage, true);
+            player.sendMessage(noItemMessage, true);
             return;
         }
         selectedSlotId = inventory.selectedSlot;
