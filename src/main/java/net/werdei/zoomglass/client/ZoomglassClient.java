@@ -31,4 +31,9 @@ public class ZoomglassClient implements ClientModInitializer
         ClientTickEvents.END_CLIENT_TICK.register(client ->
                 spyglassSlotSwapper.tick(zoomglassKeybinding.isPressed(), client));
     }
+
+    public static boolean isQuickSpyglassActive()
+    {
+        return spyglassSlotSwapper.isSwapped();
+    }
 }

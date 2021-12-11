@@ -4,7 +4,7 @@
   "package": "net.werdei.zoomglass.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "KeyBindingMixin"
+    "MinecraftClientMixin"
   ],
   "client": [
   ],

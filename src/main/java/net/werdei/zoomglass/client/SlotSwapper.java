@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import net.werdei.zoomglass.extensions.KeyBindingExtensions;
 
 public class SlotSwapper
 {
@@ -73,18 +72,12 @@ public class SlotSwapper
 
     private static void swapSlots(int inventorySlot, int hotbarSlot, MinecraftClient client)
     {
-        System.out.println(inventorySlot + " " + hotbarSlot);
         client.interactionManager.clickSlot(
                 client.player.playerScreenHandler.syncId,
                 inventorySlot,
                 hotbarSlot,
                 SlotActionType.SWAP,
                 client.player);
-    }
-
-    private static void setForceUse(boolean value, MinecraftClient client)
-    {
-        ((KeyBindingExtensions) client.options.keyUse).setOverridePressed(value);
     }
 
 
@@ -108,23 +101,17 @@ public class SlotSwapper
             this.selectedSlotId = inventory.selectedSlot;
         }
 
+        protected final void startUseItem()
+        {
+            client.interactionManager.interactItem(player, client.world, Hand.MAIN_HAND);
+        }
+
         public boolean shouldSwapBack()
         {
             return didSelectedSlotChange() || didHandItemChange();
         }
 
         public abstract void swapBack();
-
-        protected final void startForceUseItem()
-        {
-            client.interactionManager.interactItem(player, player.world, Hand.MAIN_HAND);
-            setForceUse(true, client);
-        }
-
-        protected final void stopForceUseItem()
-        {
-            setForceUse(false, client);
-        }
 
         protected final boolean didSelectedSlotChange()
         {
@@ -145,13 +132,12 @@ public class SlotSwapper
         {
             super(client, itemSlotId);
             swapSlots(itemSlotId, selectedSlotId, client);
-            startForceUseItem();
+            startUseItem();
         }
 
         @Override
         public void swapBack()
         {
-            stopForceUseItem();
             swapSlots(itemSlotId, selectedSlotId, client);
         }
     }
@@ -166,13 +152,12 @@ public class SlotSwapper
             super(client, itemSlotId);
             previousSelectedSlotId = selectedSlotId;
             selectedSlotId = inventory.selectedSlot = itemSlotId;
-            startForceUseItem();
+            startUseItem();
         }
 
         @Override
         public void swapBack()
         {
-            stopForceUseItem();
             if (!didSelectedSlotChange())
                 inventory.selectedSlot = previousSelectedSlotId;
         }
