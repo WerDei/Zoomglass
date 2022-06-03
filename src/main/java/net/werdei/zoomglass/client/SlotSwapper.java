@@ -103,7 +103,7 @@ public class SlotSwapper
 
         protected final void startUseItem()
         {
-            client.interactionManager.interactItem(player, client.world, Hand.MAIN_HAND);
+            client.interactionManager.interactItem(player, Hand.MAIN_HAND);
         }
 
         public boolean shouldSwapBack()
