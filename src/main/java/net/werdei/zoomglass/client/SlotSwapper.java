@@ -24,7 +24,7 @@ public class SlotSwapper
         this.noItemMessage = noItemMessage;
     }
 
-    public void tick(boolean isSwapRequested, MinecraftClient client)
+    public void tick(boolean isSwapRequested, MinecraftClient client) throws NoItemException
     {
         if (client.player == null | client.interactionManager == null) return;
 
@@ -37,16 +37,13 @@ public class SlotSwapper
         wasSwapRequested = isSwapRequested;
     }
 
-    private void swapStart(MinecraftClient client)
+    private void swapStart(MinecraftClient client) throws NoItemException
     {
         if (isSwapped()) return;
 
         var itemSlotId = client.player.getInventory().getSlotWithStack(new ItemStack(item));
         if (itemSlotId == -1)
-        {
-            client.player.sendMessage(noItemMessage, true);
-            return;
-        }
+            throw new NoItemException();
 
         if (PlayerInventory.isValidHotbarIndex(itemSlotId))
             swapController = new SwapFromHotbar(client, itemSlotId);
