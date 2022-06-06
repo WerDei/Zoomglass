@@ -12,16 +12,14 @@ import net.minecraft.util.Hand;
 public class SlotSwapper
 {
     private final Item item;
-    private final Text noItemMessage;
 
     private boolean wasSwapRequested;
     private SwapController swapController = null;
 
 
-    public SlotSwapper(Item item, Text noItemMessage)
+    public SlotSwapper(Item item)
     {
         this.item = item;
-        this.noItemMessage = noItemMessage;
     }
 
     public void tick(boolean isSwapRequested, MinecraftClient client) throws NoItemException
