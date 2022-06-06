@@ -27,7 +27,7 @@ public class ZoomglassClient implements ClientModInitializer
                 "key.categories.inventory"
         ));
 
-        spyglassSlotSwapper = new SlotSwapper(Items.SPYGLASS, Text.translatable("zoomglass.nospyglass"));
+        spyglassSlotSwapper = new SlotSwapper(Items.SPYGLASS);
 
         ClientTickEvents.END_CLIENT_TICK.register(ZoomglassClient::onZoomglassKeyPressed);
     }
