@@ -7,7 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import org.lwjgl.glfw.GLFW;
 
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
@@ -27,7 +27,7 @@ public class ZoomglassClient implements ClientModInitializer
                 "key.categories.inventory"
         ));
 
-        spyglassSlotSwapper = new SlotSwapper(Items.SPYGLASS, Text.translatable("zoomglass.nospyglass"));
+        spyglassSlotSwapper = new SlotSwapper(Items.SPYGLASS, new TranslatableText("zoomglass.nospyglass"));
 
         ClientTickEvents.END_CLIENT_TICK.register(ZoomglassClient::onZoomglassKeyPressed);
     }
@@ -53,7 +53,7 @@ public class ZoomglassClient implements ClientModInitializer
                 if (player.isCreative())
                     fakeSpyglassActive = zoomglassKeybinding.isPressed();
                 else
-                    player.sendMessage(Text.translatable("zoomglass.nospyglass"), true);
+                    player.sendMessage(new TranslatableText("zoomglass.nospyglass"), true);
             }
         }
 
