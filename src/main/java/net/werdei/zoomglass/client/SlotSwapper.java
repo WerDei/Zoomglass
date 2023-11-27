@@ -4,9 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
 public class SlotSwapper
@@ -39,7 +37,14 @@ public class SlotSwapper
     {
         if (isSwapped()) return;
 
-        var itemSlotId = client.player.getInventory().getSlotWithStack(new ItemStack(item));
+        var itemSlotId = -1;
+        var items = client.player.getInventory().main;
+        for (int i = 0; i < items.size() && itemSlotId == -1; ++i)
+        {
+            if (!items.get(i).isEmpty() && items.get(i).isOf(item))
+                itemSlotId = i;
+        }
+
         if (itemSlotId == -1)
             throw new NoItemException();
 
