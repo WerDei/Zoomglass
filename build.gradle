@@ -1,8 +1,9 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
-    id 'maven-publish'
-    id "com.modrinth.minotaur" version "1.2.1"
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id "com.modrinth.minotaur" version "2.7.4"
+    id "net.darkhax.curseforgegradle" version "1.1.16"
 }
 
 version = project.mod_version
@@ -60,45 +61,41 @@ jar {
 
 // Mod publishing
 
-import com.modrinth.minotaur.TaskModrinthUpload
-
 def versionDisplayName = project.mod_name + ' - ' + project.version
-def supportedMinecraftVersions = project.mod_supported_minecraft_versions.split(',')
+def supportedMinecraftVersions = project.mod_supported_minecraft_versions.split(',').toList()
 def changelogText = new File('./CHANGELOG.md').text
 
 
-task modrinth (type: TaskModrinthUpload) {
-    group 'upload'
-    token = project.modrinth_token // saved in user home
+modrinth
+{
+    token = project.modrinth_token
     projectId = project.modrinth_mod_id
     versionName = versionDisplayName
     versionNumber = project.version
-    for (ver in supportedMinecraftVersions) {
-        addGameVersion(ver)
-    }
     versionType = project.mod_version_type
+
+    gameVersions = supportedMinecraftVersions
+    loaders = ["fabric", "quilt"]
     changelog = changelogText
+
     uploadFile = remapJar
-    addLoader('fabric')
 }
 
-curseforge {
-    apiKey = project.curseforge_token // saved in user home
-    project {
-        relations {
-            requiredDependency 'fabric-api'
-        }
-        id = project.curseforge_mod_id
-        changelogType = 'markdown'
-        changelog = changelogText
-        releaseType = project.mod_version_type
+tasks.register('curseforge', TaskPublishCurseForge)
+{
+    group 'publishing'
+    apiToken = project.curseforge_token
 
-        for (ver in supportedMinecraftVersions) {
-            addGameVersion ver
-        }
-        addGameVersion 'Fabric'
-        mainArtifact(remapJar) {
-            displayName = versionDisplayName
-        }
+    disableVersionDetection()
+    def mainFile = upload(curseforge_mod_id, remapJar)
+    mainFile.changelog = changelogText
+    mainFile.changelogType = 'markdown'
+    mainFile.releaseType = project.mod_version_type
+    mainFile.displayName = versionDisplayName
+    mainFile.addModLoader('Fabric')
+    mainFile.addModLoader('Quilt')
+    for (ver in supportedMinecraftVersions)
+    {
+        mainFile.addGameVersion(ver)
     }
 }
