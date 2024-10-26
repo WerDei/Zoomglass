@@ -1,1 +1,1 @@
-* Can now work with a renamed spyglass - thanks @JustAHuman-xD
+* Support for Minecraft version 1.21.3.
