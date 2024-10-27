@@ -5,10 +5,17 @@
   "name": "Zoomglass",
   "description": "Use a spyglass quickly, with a press of a button!",
   "authors": [
-    "WerDei",
-    "JustAHuman-xD"
+    "WerDei"
   ],
-  "contact": {},
+  "contributors": [
+    {
+      "name": "JustAHuman-xD"
+    }
+  ],
+  "contact": {
+    "issues": "https://github.com/WerDei/Zoomglass/issues",
+    "sources": "https://github.com/WerDei/Zoomglass",
+    "homepage": "https://modrinth.com/mod/zoomglass"},
   "license": "MIT",
   "icon": "assets/zoomglass/icon.png",
   "environment": "client",
@@ -21,8 +28,8 @@
     "zoomglass.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.6",
+    "fabricloader": ">=${loader_version}",
     "fabric": "*",
-    "minecraft": ">=1.19-rc.1"
+    "minecraft": "${supported_version_range}"
   }
 }

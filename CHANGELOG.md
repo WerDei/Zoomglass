@@ -1,1 +1,1 @@
-* Can now work with a renamed spyglass - thanks @JustAHuman-xD
+* Updated to 1.21.3
