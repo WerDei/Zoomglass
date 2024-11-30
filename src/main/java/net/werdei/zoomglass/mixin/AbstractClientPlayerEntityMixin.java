@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.At;
 public class AbstractClientPlayerEntityMixin
 {
     @ModifyReturnValue(method = "getFovMultiplier", at=@At("RETURN"))
-    public float forceSpyglassFov(float original, boolean firstPerson)
+    public float forceSpyglassFov(float original)
     {
-        if (firstPerson && ZoomglassClient.isFakeSpyglassActive())
+        if (ZoomglassClient.isFakeSpyglassActive())
             return 0.1f;
         return original;
     }

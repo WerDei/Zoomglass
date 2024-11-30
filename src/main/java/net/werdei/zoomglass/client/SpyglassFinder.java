@@ -62,7 +62,7 @@ public class SpyglassFinder
                 return new UseFromInventory(client, i);
         }
         
-        if (player.isSpectator() || player.isInCreativeMode())
+        if (player.isSpectator() || player.isCreative())
             return new UseFake(client);
         
         player.sendMessage(Text.translatable("zoomglass.nospyglass"), true);
@@ -113,7 +113,7 @@ public class SpyglassFinder
         {
             useServerside = () -> client.interactionManager.interactItem(player, hand);
             
-            if (addDelay && !client.isConnectedToLocalServer())
+            if (addDelay)
             {
                 player.getStackInHand(hand).use(this.client.world, player, hand);
                 useServersideDelay = 2; // make configurable, maybe?
