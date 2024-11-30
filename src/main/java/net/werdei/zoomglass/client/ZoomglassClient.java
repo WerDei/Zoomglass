@@ -1,22 +1,21 @@
 package net.werdei.zoomglass.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.Items;
-import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
-@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
+
+@Environment(net.fabricmc.api.EnvType.CLIENT)
 public class ZoomglassClient implements ClientModInitializer
 {
     private static KeyBinding zoomglassKeybinding;
-    private static SlotSwapper spyglassSlotSwapper;
-    private static boolean fakeSpyglassActive;
-
+    private static SpyglassFinder spyglassFinder;
+    
     @Override
     public void onInitializeClient()
     {
@@ -26,46 +25,20 @@ public class ZoomglassClient implements ClientModInitializer
                 GLFW.GLFW_KEY_Z,
                 "key.categories.inventory"
         ));
-
-        spyglassSlotSwapper = new SlotSwapper(Items.SPYGLASS);
-
-        ClientTickEvents.END_CLIENT_TICK.register(ZoomglassClient::onZoomglassKeyPressed);
+        
+        spyglassFinder = new SpyglassFinder(Items.SPYGLASS);
+        
+        ClientTickEvents.START_CLIENT_TICK.register(client ->
+                spyglassFinder.tick(zoomglassKeybinding.isPressed(), client));
     }
-
-    public static void onZoomglassKeyPressed(MinecraftClient client)
-    {
-        var player = client.player;
-        if (player == null) return;
-
-        fakeSpyglassActive = false;
-
-        if (player.isSpectator())
-            fakeSpyglassActive = zoomglassKeybinding.isPressed();
-
-        else
-        {
-            try
-            {
-                spyglassSlotSwapper.tick(zoomglassKeybinding.isPressed(), client);
-            }
-            catch (NoItemException e)
-            {
-                if (player.isCreative())
-                    fakeSpyglassActive = zoomglassKeybinding.isPressed();
-                else
-                    player.sendMessage(Text.translatable("zoomglass.nospyglass"), true);
-            }
-        }
-
-    }
-
+    
     public static boolean isQuickSpyglassActive()
     {
-        return spyglassSlotSwapper.isSwapped();
+        return spyglassFinder.isActive();
     }
-
+    
     public static boolean isFakeSpyglassActive()
     {
-        return fakeSpyglassActive;
+        return spyglassFinder.isActiveFake();
     }
 }
