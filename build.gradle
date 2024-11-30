@@ -72,7 +72,7 @@ jar {
 
 // Mod publishing
 
-def versionDisplayName = project.mod_name + ' - ' + project.version + project.mod_version_suffix
+def versionDisplayName = project.mod_name + " - " + project.mod_version.split("-")[0] + " " + project.mod_version_suffix
 def supportedMinecraftVersions = project.mod_supported_minecraft_versions.split(',').toList()
 def changelogText = new File('./CHANGELOG.md').text
 
