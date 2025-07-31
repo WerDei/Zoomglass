@@ -46,12 +46,12 @@ public class SpyglassFinder
         var player = client.player;
         if (player == null) return null;
         
-        var inventory = client.player.getInventory();
+        var inventory = player.getInventory();
         
-        if (inventory.offHand.get(0).isOf(item))
+        if (player.getOffHandStack().isOf(item))
             return new UseFromOffhand(client);
         
-        var mainInventory = inventory.main;
+        var mainInventory = inventory.getMainStacks();
         for (int i = 0; i < mainInventory.size(); ++i)
         {
             if (!mainInventory.get(i).isOf(item)) continue;
@@ -104,7 +104,7 @@ public class SpyglassFinder
             this.client = client;
             player = client.player;
             inventory = player.getInventory();
-            selectedSlot = inventory.selectedSlot;
+            selectedSlot = inventory.getSelectedSlot();
         }
         
         // Delay is needed in multiplayer because of the broken animation
@@ -123,12 +123,12 @@ public class SpyglassFinder
         
         protected final boolean didSelectedSlotChange()
         {
-            return inventory.selectedSlot != selectedSlot;
+            return inventory.getSelectedSlot() != selectedSlot;
         }
         
         protected final boolean didHandItemChange()
         {
-            return !inventory.getMainHandStack().isOf(item);
+            return !player.getActiveItem().isOf(item);
         }
         
         public void tick()
@@ -189,7 +189,7 @@ public class SpyglassFinder
         {
             super(client);
             slotToReturnTo = selectedSlot;
-            selectedSlot = inventory.selectedSlot = itemSlot;
+            inventory.setSelectedSlot(selectedSlot = itemSlot);
             useItemInHand(Hand.MAIN_HAND, slotToReturnTo != selectedSlot);
         }
         
@@ -203,7 +203,7 @@ public class SpyglassFinder
         public void stop()
         {
             if (!didSelectedSlotChange())
-                inventory.selectedSlot = slotToReturnTo;
+                inventory.setSelectedSlot(slotToReturnTo);
         }
     }
     
@@ -220,7 +220,7 @@ public class SpyglassFinder
         @Override
         public boolean shouldStop()
         {
-            return inventory.offHand.get(0).getItem() != item;
+            return !player.getOffHandStack().isOf(item);
         }
         
         @Override

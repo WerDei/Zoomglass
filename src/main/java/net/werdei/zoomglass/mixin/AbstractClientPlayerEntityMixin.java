@@ -2,6 +2,7 @@ package net.werdei.zoomglass.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.item.SpyglassItem;
 import net.werdei.zoomglass.client.ZoomglassClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +14,7 @@ public class AbstractClientPlayerEntityMixin
     public float forceSpyglassFov(float original, boolean firstPerson)
     {
         if (firstPerson && ZoomglassClient.isFakeSpyglassActive())
-            return 0.1f;
+            return SpyglassItem.FOV_MULTIPLIER;
         return original;
     }
 }
