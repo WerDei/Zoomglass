@@ -23,7 +23,7 @@ public class ZoomglassClient implements ClientModInitializer
                 "key.zoomglass.spyglass",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_Z,
-                "key.categories.inventory"
+                KeyBinding.Category.INVENTORY
         ));
         
         spyglassFinder = new SpyglassFinder(Items.SPYGLASS);
