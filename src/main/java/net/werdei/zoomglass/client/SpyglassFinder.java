@@ -1,13 +1,13 @@
 package net.werdei.zoomglass.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.item.Item;
 
 
 public class SpyglassFinder
@@ -24,9 +24,9 @@ public class SpyglassFinder
     }
     
     
-    public void tick(boolean shouldBeUsing, MinecraftClient client)
+    public void tick(boolean shouldBeUsing, Minecraft client)
     {
-        if (client.interactionManager == null) return;
+        if (client.gameMode == null) return;
         
         if (shouldBeUsing && canStart && useController == null)
             useController = start(client);
@@ -41,31 +41,31 @@ public class SpyglassFinder
             stop();
     }
     
-    private UseController start(MinecraftClient client)
+    private UseController start(Minecraft client)
     {
         var player = client.player;
         if (player == null) return null;
         
         var inventory = player.getInventory();
         
-        if (player.getOffHandStack().isOf(item))
+        if (player.getOffhandItem().is(item))
             return new UseFromOffhand(client);
         
-        var mainInventory = inventory.getMainStacks();
+        var mainInventory = inventory.getNonEquipmentItems();
         for (int i = 0; i < mainInventory.size(); ++i)
         {
-            if (!mainInventory.get(i).isOf(item)) continue;
+            if (!mainInventory.get(i).is(item)) continue;
             
-            if (PlayerInventory.isValidHotbarIndex(i))
+            if (Inventory.isHotbarSlot(i))
                 return new UseFromHotbar(client, i);
             else
                 return new UseFromInventory(client, i);
         }
         
-        if (player.isSpectator() || player.isInCreativeMode())
+        if (player.isSpectator() || player.hasInfiniteMaterials())
             return new UseFake(client);
         
-        player.sendMessage(Text.translatable("zoomglass.nospyglass"), true);
+        player.sendOverlayMessage(Component.translatable("zoomglass.nospyglass"));
         return null;
     }
     
@@ -91,15 +91,15 @@ public class SpyglassFinder
     
     private abstract class UseController
     {
-        protected final PlayerInventory inventory;
-        protected final ClientPlayerEntity player;
-        protected final MinecraftClient client;
+        protected final Inventory inventory;
+        protected final LocalPlayer player;
+        protected final Minecraft client;
         protected int selectedSlot;
         private int useServersideDelay = -1;
         private Runnable useServerside;
 
 
-        public UseController(MinecraftClient client)
+        public UseController(Minecraft client)
         {
             this.client = client;
             player = client.player;
@@ -109,13 +109,13 @@ public class SpyglassFinder
         
         // Delay is needed in multiplayer because of the broken animation
         // when switching slots and using item at the same time (vanilla bug)
-        protected final void useItemInHand(Hand hand, boolean addDelay)
+        protected final void useItemInHand(InteractionHand hand, boolean addDelay)
         {
-            useServerside = () -> client.interactionManager.interactItem(player, hand);
+            useServerside = () -> client.gameMode.useItem(player, hand);
             
-            if (addDelay && !client.isConnectedToLocalServer())
+            if (addDelay && !client.isSingleplayer())
             {
-                player.getStackInHand(hand).use(this.client.world, player, hand);
+                player.getItemInHand(hand).use(this.client.level, player, hand);
                 useServersideDelay = 2; // make configurable, maybe?
             }
             else useServerside.run();
@@ -128,7 +128,7 @@ public class SpyglassFinder
         
         protected final boolean didHandItemChange()
         {
-            return !player.getActiveItem().isOf(item);
+            return !player.getUseItem().is(item);
         }
         
         public void tick()
@@ -149,21 +149,21 @@ public class SpyglassFinder
         private final int previousItemSlot;
         
         
-        public UseFromInventory(MinecraftClient client, int itemSlot)
+        public UseFromInventory(Minecraft client, int itemSlot)
         {
             super(client);
             this.previousItemSlot = itemSlot;
             swapSlots(itemSlot, selectedSlot);
-            useItemInHand(Hand.MAIN_HAND, true);
+            useItemInHand(InteractionHand.MAIN_HAND, true);
         }
         
         private void swapSlots(int inventorySlot, int hotbarSlot)
         {
-            client.interactionManager.clickSlot(
-                    player.playerScreenHandler.syncId,
+            client.gameMode.handleContainerInput(
+                    player.inventoryMenu.containerId,
                     inventorySlot,
                     hotbarSlot,
-                    SlotActionType.SWAP,
+                    ContainerInput.SWAP,
                     player);
         }
         
@@ -185,12 +185,12 @@ public class SpyglassFinder
     {
         private final int slotToReturnTo;
         
-        public UseFromHotbar(MinecraftClient client, int itemSlot)
+        public UseFromHotbar(Minecraft client, int itemSlot)
         {
             super(client);
             slotToReturnTo = selectedSlot;
             inventory.setSelectedSlot(selectedSlot = itemSlot);
-            useItemInHand(Hand.MAIN_HAND, slotToReturnTo != selectedSlot);
+            useItemInHand(InteractionHand.MAIN_HAND, slotToReturnTo != selectedSlot);
         }
         
         @Override
@@ -211,16 +211,16 @@ public class SpyglassFinder
     private class UseFromOffhand extends UseController
     {
         
-        public UseFromOffhand(MinecraftClient client)
+        public UseFromOffhand(Minecraft client)
         {
             super(client);
-            useItemInHand(Hand.OFF_HAND, false);
+            useItemInHand(InteractionHand.OFF_HAND, false);
         }
         
         @Override
         public boolean shouldStop()
         {
-            return !player.getOffHandStack().isOf(item);
+            return !player.getOffhandItem().is(item);
         }
         
         @Override
@@ -230,10 +230,10 @@ public class SpyglassFinder
     
     private class UseFake extends UseController
     {
-        public UseFake(MinecraftClient client)
+        public UseFake(Minecraft client)
         {
             super(client);
-            player.playSound(SoundEvents.ITEM_SPYGLASS_USE, 1.0F, 1.0F);
+            player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
             isActiveFake = true;
         }
         
@@ -246,7 +246,7 @@ public class SpyglassFinder
         @Override
         public void stop()
         {
-            player.playSound(SoundEvents.ITEM_SPYGLASS_STOP_USING, 1.0F, 1.0F);
+            player.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
             isActiveFake = false;
         }
     }
