@@ -1,7 +1,7 @@
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
 
 plugins {
-    id 'fabric-loom' version '1.12-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.16-SNAPSHOT'
     id "com.modrinth.minotaur" version "2.8.7"
     id "net.darkhax.curseforgegradle" version "1.1.25"
 }
@@ -19,11 +19,10 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-//    modImplementation "maven.modrinth:modmenu:12.0.0-beta.1"
+//  implementation "maven.modrinth:modmenu:12.0.0-beta.1"
 }
 
 processResources {
@@ -39,7 +38,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
@@ -56,7 +55,7 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
-    archivesBaseName = project.archives_base_name
+    //archivesBaseName = project.archives_base_name
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
     // if it is present.
     // If you remove this line, sources will not be generated.
@@ -65,7 +64,7 @@ java {
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+        rename { "${it}_${project.archives_base_name}" }
     }
 }
 
@@ -89,7 +88,7 @@ modrinth
     loaders = ["fabric", "quilt"]
     changelog = changelogText
 
-    uploadFile = remapJar
+    uploadFile = jar
 }
 
 tasks.register('curseforge', TaskPublishCurseForge)
@@ -98,7 +97,7 @@ tasks.register('curseforge', TaskPublishCurseForge)
     apiToken = project.curseforge_token
 
     disableVersionDetection()
-    def mainFile = upload(curseforge_mod_id, remapJar)
+    def mainFile = upload(curseforge_mod_id, jar)
     mainFile.changelog = changelogText
     mainFile.changelogType = 'markdown'
     mainFile.releaseType = project.mod_version_type
